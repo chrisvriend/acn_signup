@@ -67,7 +67,7 @@ document.getElementById('submit').onclick = async () => {
   btn.disabled = true;
   const topics = [...list.children].map(li => li.querySelector('.label').textContent);
   try {
-    await fetch('PASTE_YOUR_APPS_SCRIPT_URL_HERE', {
+    await fetch('https://script.google.com/macros/s/AKfycbzWioCHFWjgiHOi0ILUoN5ur_LamLsoxcmLTP5HJoEuZWMhfE4n5xTMxQptsKfkobEz/exec', {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain' },
