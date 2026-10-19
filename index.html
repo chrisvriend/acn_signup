@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Topic Ranking</title>
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 600px; margin: 2rem auto; padding: 0 1rem; }
+  #ranking { list-style: none; padding: 0; }
+  #ranking li { display: flex; align-items: center; gap: .75rem; background: #f4f4f5;
+    border: 1px solid #d4d4d8; border-radius: 8px; padding: .7rem 1rem; margin: .4rem 0; cursor: grab; }
+  .pos { font-weight: 700; color: #71717a; min-width: 1.4rem; }
+  input[type=text] { padding: .6rem; font-size: 1rem; border: 1px solid #d4d4d8;
+    border-radius: 8px; width: 100%; box-sizing: border-box; margin-bottom: 1rem; }
+  button { margin-top: 1rem; padding: .7rem 1.4rem; font-size: 1rem; cursor: pointer; }
+  button:disabled { opacity: .5; cursor: default; }
+</style>
+</head>
+<body>
+<h1>Rank these topics</h1>
+
+<label for="name">Your name:</label>
+<input type="text" id="name" autocomplete="name">
+
+<p>Drag the topics into your preferred order (1 = most interesting).</p>
+<ul id="ranking">
+  <li><span class="label">Stem cell therapy in PD</span></li>
+  <li><span class="label">Triangulation</span></li>
+  <li><span class="label">Enriched neuroimaging analyses</span></li>
+  <li><span class="label">TMS targeting</span></li>
+  <li><span class="label">Cancer neuroscience</span></li>
+  <li><span class="label">TMS in AD</span></li>
+  <li><span class="label">Age effects in neuro(nco)logy</span></li>
+  <li><span class="label">Spatial transcriptomics</span></li>
+  <li><span class="label">Brain age gap</span></li>
+  <li><span class="label">Translational measurements in cognition</span></li>
+  <li><span class="label">Clinical risk prediction</span></li>
+  <li><span class="label">New treatments of MS</span></li>
+  <li><span class="label">Liquid biopsies in neurodegeneration</span></li>
+</ul>
+
+<button id="submit">Submit ranking</button>
+<p id="status"></p>
+
+<script>
+const list = document.getElementById('ranking');
+
+// Shuffle once so the starting order doesn't bias results
+[...list.children].sort(() => Math.random() - 0.5).forEach(li => list.appendChild(li));
+
+new Sortable(list, { animation: 150, onSort: numberItems });
+numberItems();
+
+function numberItems() {
+  [...list.children].forEach((li, i) => {
+    li.querySelector('.pos')?.remove();
+    li.insertAdjacentHTML('afterbegin', `<span class="pos">${i + 1}</span>`);
+  });
+}
+
+document.getElementById('submit').onclick = async () => {
+  const name = document.getElementById('name').value.trim();
+  if (!name) { document.getElementById('status').textContent = 'Please enter your name first.'; return; }
+
+  const btn = document.getElementById('submit');
+  btn.disabled = true;
+  const topics = [...list.children].map(li => li.querySelector('.label').textContent);
+  try {
+    await fetch('PASTE_YOUR_APPS_SCRIPT_URL_HERE', {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain' },
+      body: JSON.stringify({ name: name, ranking: topics })
+    });
+    document.getElementById('status').textContent = 'Thanks, ' + name + ' — your ranking has been recorded.';
+    btn.textContent = 'Submitted';
+  } catch (err) {
+    document.getElementById('status').textContent = 'Something went wrong — please try again.';
+    btn.disabled = false;
+  }
+};
+</script>
+</body>
+</html>
